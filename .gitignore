@@ -17,3 +17,7 @@ stereomic/*.lib
 *.h
 stereomic/fp-info-cache
 stereomic/sym-lib-table
+impl/pnr
+impl/temp
+impl/gwsynthesis
+impl/_synthesize
