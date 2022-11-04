@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module name="TOP">
+    <SubModule name="chip_pll"/>
+    <SubModule name="mic" Register="304" Alu="205" Lut="10">
+        <SubModule name="lc" Register="73" Alu="72"/>
+        <SubModule name="agc" Register="141" Alu="12" Lut="118"/>
+    </SubModule>
+    <SubModule name="D1" Register="243" Alu="185" Lut="87" Dsp="3" Bsram="16" Ssram="1">
+        <SubModule name="deltatheta" Register="1" Lut="35"/>
+        <SubModule name="cscordic0" Register="828" Alu="771" Lut="542" Ssram="1"/>
+        <SubModule name="cscordic1" Register="830" Alu="771" Lut="537"/>
+    </SubModule>
+</Module>

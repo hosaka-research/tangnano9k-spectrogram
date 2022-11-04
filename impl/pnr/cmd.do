@@ -1,0 +1,11 @@
+-d C:\Users\jim\Documents\2022\tangnano9k\tangnano9k-spectrogram\impl\gwsynthesis\Nano9k_lcdmic.vg
+-p GW1NR-9C-QFN88P-6
+-pn GW1NR-LV9QN88PC6/I5
+-cst C:\Users\jim\Documents\2022\tangnano9k\tangnano9k-spectrogram\src\Nano9k_lcdmic.cst
+-cfg C:\Users\jim\Documents\2022\tangnano9k\tangnano9k-spectrogram\impl\pnr\device.cfg
+-sdc C:\Users\jim\Documents\2022\tangnano9k\tangnano9k-spectrogram\src\Nano9k_lcdmic.sdc
+-bit
+-tr
+-ph
+-timing
+-route_maxfan 23

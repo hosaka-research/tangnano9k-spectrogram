@@ -1,0 +1,5 @@
+del cic_digital_mic_90M_3M_6k_tb.vvp cic_digital_mic_90M_3M_6k_tb.vcd cic_digital_mic_90M_3M_6k_tb.err
+iverilog -ocic_digital_mic_90M_3M_6k_tb.vvp ..\cic_digital_mic_90M_3M_6k.v 2> cic_digital_mic_90M_3M_6k_tb.err
+vvp cic_digital_mic_90M_3M_6k_tb.vvp 2>> cic_digital_mic_90M_3M_6k_tb.err
+gtkwave cic_digital_mic_90M_3M_6k_tb.vcd
+
