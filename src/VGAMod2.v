@@ -273,13 +273,19 @@ always@(posedge CLK) if(c_isend) begin
     end
 end
 
+reg gridenout = 0;
+reg gridpixout = 0;
+grid_pixgen gp( .CK(CLK), .EN(c_S), .v_pos(v_pos), .h_pos(h_pos), .enout(gridenout), .pixout(gridpixout) );
+
 reg [15:0] LCD_RGB565_r = 0;
 assign LCD_RGB565=LCD_RGB565_r;
 
 //always@(posedge CLK) if(c_S[3]) LCD_RGB565_r <= (v_count[7:0] != adata0_crnt0[17:10]) ? 16'h0000 : 16'hffff;
 //always@(posedge CLK) if(c_S[3]) LCD_RGB565_r <= (v_count[7:0] != adata0_crnt0[17:10]) ? {5'b0, blog[5:0], 5'b0}: 16'hffff;
 //always@(posedge CLK) if(c_S[3])LCD_RGB565_r <= (v_count[7:0] != adata0_crnt0[17:10]) ? {blog[5:1], blog[5:0], blog[5:1]}: 16'hffff;
-always@(posedge CLK) if(c_S[3]) LCD_RGB565_r <= {blog[5:1], blog[5:0], blog[5:1]};
+//always@(posedge CLK) if(c_S[3]) LCD_RGB565_r <= {blog[5:1], blog[5:0], blog[5:1]}; 
+// always@(posedge CLK) if(c_S[3]) LCD_RGB565_r <= gridpixout ? 16'hffff : gridenout ? {blog[5:1], blog[5:0], blog[5:1]} : 16'b0; 
+always@(posedge CLK) if(c_S[3]) LCD_RGB565_r <= gridpixout ? 16'hffff : {blog[5:1], blog[5:0], blog[5:1]}; 
 endmodule
 
 
