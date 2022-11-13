@@ -72,9 +72,9 @@ module char_rom
                 7'b0101_110: dataout <= 6'b011110;
                 7'b0101_111: dataout <= 6'b000000;
     //////////// code = 6, character 6
-                7'b0110_000: dataout <= 6'b001111;
-                7'b0110_001: dataout <= 6'b010000;
-                7'b0110_010: dataout <= 6'b010000;
+                7'b0110_000: dataout <= 6'b000011;
+                7'b0110_001: dataout <= 6'b000100;
+                7'b0110_010: dataout <= 6'b001000;
                 7'b0110_011: dataout <= 6'b011110;
                 7'b0110_100: dataout <= 6'b010001;
                 7'b0110_101: dataout <= 6'b010001;
@@ -211,7 +211,7 @@ wire [6:0] addr = {ychr, xchr};
                 7'b1011_001: chrreg<= 4'hf;
                 7'b1011_010: chrreg<= 4'hf;
                 7'b1011_011: chrreg<= 4'h0;
-                default: chrreg <= 4'hf;
+                default: chrreg <= 4'hf;  // ' ' 
             endcase
         end
     end
@@ -382,10 +382,6 @@ module grid_pixgen
     output pixout
 );
 
-    //reg enreg = 0;
-    //assign enout = enreg;
-    //reg pixreg = 0;
-    //assign pixout = pixreg;
     reg henable = 0;
     reg hborder = 0;
     reg hliney = 0;
