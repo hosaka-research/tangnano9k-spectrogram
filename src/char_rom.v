@@ -336,7 +336,7 @@ module char_pixgen2
 (
     input CK,
     input EN,
-    input [8:0] y_pos,
+    input [9:0] y_pos,
     output [3:0] ycharpos,
     output [2:0] yline
 );
@@ -588,7 +588,7 @@ module grid_pixgen
 (
     input CK,
     input [3:0] EN,
-    input [8:0] v_pos,
+    input [9:0] v_pos,
     input [9:0] h_pos,
     output enout,
     output pixout
@@ -620,7 +620,7 @@ module grid_pixgen
         end
     end
     reg [3:0] chr = 0;
-    char_map cm( .CK(CK), .EN(EN[1]), .ychr(ycharpos), .xchr(xcharpos), .chr(chr) );
+    char_map cm( .CK(CK), .EN(EN[1]), .ychr(ycharpos), .xchr({1'h0,xcharpos}), .chr(chr) );
     reg [5:0] cgenout = 0;
     char_rom cr( .CK(CK), .EN(EN[2]), .chr(chr), .scany(yline), .out(cgenout) );
     

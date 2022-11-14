@@ -14,7 +14,6 @@ module VGAMod2
 
 );
 
-
 /////////////////////////////
 // C counter, One hot state machine
 /////////////////////////////
@@ -43,7 +42,7 @@ wire h_isdispend =  (c_isend&&(h_count==h_disp-1));
 wire h_isnoinp   =   ((h_disp <= h_count)&&(h_count < h_noinp));
 wire h_isnoinpend =  (c_isend&&(h_count==h_noinp-1));
 always@(posedge CLK) if(c_isend) h_count <= h_count==h_stop-1'h1 ? 1'h0 : h_count+1'h1;
-wire [9:0] h_pos=h_count-h_blank;
+wire [9:0] h_pos=(h_count-h_blank);
 reg h_sync = 1;
 always@(posedge CLK) if(c_isend) h_sync <= (((h_pulse-1'h1)<=h_count)&&(h_count<=(h_disp-1'h1)));
 assign LCD_HSYNC = h_sync;
@@ -108,7 +107,7 @@ cordic cscordic1( .CLK(CLK), .theta(theta1[35:16]), .cosout(cos1), .sinout(sin1)
 reg [adata0buf_bit-1:0] adata_adr_crnt = 0;
 //always@(posedge CLK) adata_adr_crnt <= h_isnoinpend ? adata0wadr+2+1350 : adata_adr_crnt+1;
 //always@(posedge CLK) adata_adr_crnt <= h_isnoinpend ? adata0wadr+2+650 : adata_adr_crnt+1;
-always@(posedge CLK) adata_adr_crnt <= h_isnoinpend ? adata0wadr[adata0buf_bit:1]+2'h2+400: adata_adr_crnt+1'h1;
+always@(posedge CLK) adata_adr_crnt <= h_isnoinpend ? adata0wadr[adata0buf_bit:1]+2'd2+9'd400: adata_adr_crnt+1'd1;
 reg signed [17:0] adata0_crnt0, adata0_crnt1;
 always@(posedge CLK) adata0_crnt0 <= 0 ? 0: adata0buf0[adata_adr_crnt]; // check
 always@(posedge CLK) adata0_crnt1 <= 0 ? 0: adata0buf1[adata_adr_crnt]; // check
