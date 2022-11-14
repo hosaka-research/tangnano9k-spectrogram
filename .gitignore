@@ -15,6 +15,7 @@ stereomic/*.lib
 *.cpp
 *.c
 *.h
+*.user
 stereomic/fp-info-cache
 stereomic/sym-lib-table
 impl/pnr
