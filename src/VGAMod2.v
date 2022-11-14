@@ -14,6 +14,7 @@ module VGAMod2
 
 );
 
+
 /////////////////////////////
 // C counter, One hot state machine
 /////////////////////////////
@@ -30,7 +31,7 @@ assign PixelClk = PCLK;
 /////////////////////////////
 // H counter
 /////////////////////////////
-localparam h_blank  =  46;
+localparam h_blank  =  11'd46;
 localparam h_pulse  =   1; 
 localparam h_disp   = h_blank + 800;
 localparam h_noinp  = h_disp + 128;
@@ -41,13 +42,13 @@ wire h_isend = (c_isend&&(h_count==h_stop-1));
 wire h_isdispend =  (c_isend&&(h_count==h_disp-1));
 wire h_isnoinp   =   ((h_disp <= h_count)&&(h_count < h_noinp));
 wire h_isnoinpend =  (c_isend&&(h_count==h_noinp-1));
-always@(posedge CLK) if(c_isend) h_count <= h_count==h_stop-1 ? 0 : h_count+1;
+always@(posedge CLK) if(c_isend) h_count <= h_count==h_stop-1'h1 ? 1'h0 : h_count+1'h1;
 wire [9:0] h_pos=h_count-h_blank;
 reg h_sync = 1;
-always@(posedge CLK) if(c_isend) h_sync <= (((h_pulse-1)<=h_count)&&(h_count<=(h_disp-1)));
+always@(posedge CLK) if(c_isend) h_sync <= (((h_pulse-1'h1)<=h_count)&&(h_count<=(h_disp-1'h1)));
 assign LCD_HSYNC = h_sync;
-wire h_enable = ((h_blank-1<=h_count)&&(h_count <= h_disp-1));
-wire h_validdata = ((h_count<=(h_disp-1)));
+wire h_enable = ((h_blank-1<=h_count)&&(h_count <= h_disp-1'h1));
+wire h_validdata = ((h_count<=(h_disp-1'h1)));
 
 /////////////////////////////
 // V counter
@@ -59,7 +60,7 @@ localparam v_stop  = v_disp + 45;
 
 reg[ 9:0] v_count   = 0; // Count vertical clock to generate frame clock
 wire v_isend = (h_isend&&(v_count==v_stop-1));
-always@(posedge CLK) if(h_isend) v_count <= v_isend ? 0 : v_count+1;
+always@(posedge CLK) if(h_isend) v_count <= v_isend ? 1'h0 : v_count+1'h1;
 reg v_sync = 0;
 always@(posedge CLK) if(h_isend) v_sync <= ((v_pulse<=v_count)&&(v_count<=v_stop));
 
@@ -80,7 +81,7 @@ reg signed [17:0] adata0buf1[0:adata0buf_size-1];
 reg [adata0buf_bit:0] adata0wadr = 0;
 always@(posedge CLK) if(ADATARDY && adata0wadr[0]==0) adata0buf0[adata0wadr[adata0buf_bit:1]] <= $signed(ADATA0);
 always@(posedge CLK) if(ADATARDY && adata0wadr[0]==1) adata0buf1[adata0wadr[adata0buf_bit:1]] <= $signed(ADATA0);
-always@(posedge CLK) if(ADATARDY) adata0wadr <= adata0wadr+1;
+always@(posedge CLK) if(ADATARDY) adata0wadr <= adata0wadr+1'h1;
 
 ////////////////////////////////
 // calc theta for every clock
@@ -107,7 +108,7 @@ cordic cscordic1( .CLK(CLK), .theta(theta1[35:16]), .cosout(cos1), .sinout(sin1)
 reg [adata0buf_bit-1:0] adata_adr_crnt = 0;
 //always@(posedge CLK) adata_adr_crnt <= h_isnoinpend ? adata0wadr+2+1350 : adata_adr_crnt+1;
 //always@(posedge CLK) adata_adr_crnt <= h_isnoinpend ? adata0wadr+2+650 : adata_adr_crnt+1;
-always@(posedge CLK) adata_adr_crnt <= h_isnoinpend ? adata0wadr[adata0buf_bit:1]+2+400: adata_adr_crnt+1;
+always@(posedge CLK) adata_adr_crnt <= h_isnoinpend ? adata0wadr[adata0buf_bit:1]+2'h2+400: adata_adr_crnt+1'h1;
 reg signed [17:0] adata0_crnt0, adata0_crnt1;
 always@(posedge CLK) adata0_crnt0 <= 0 ? 0: adata0buf0[adata_adr_crnt]; // check
 always@(posedge CLK) adata0_crnt1 <= 0 ? 0: adata0buf1[adata_adr_crnt]; // check

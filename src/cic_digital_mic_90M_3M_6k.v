@@ -13,8 +13,8 @@ module cic_digital_mic_90M_3M_6k( input wire CLK, output mic_clk, input wire mic
     reg [9:0] data_count=0;
     localparam data_count_stop = 10'd1000; // (6MHz/6kHz)
     wire data_count_isend = (data_count==data_count_stop-1);
-    always@(posedge CLK) mic_count <= mic_count_isend ? 0 : mic_count+1;
-    always@(posedge CLK) if(mic_count_isend) data_count <= data_count_isend ? 0 : data_count+1;
+    always@(posedge CLK) mic_count <= mic_count_isend ? 5'h0 : mic_count+5'h1;
+    always@(posedge CLK) if(mic_count_isend) data_count <= data_count_isend ? 10'h0 : data_count+10'h1;
     assign mic_clk = data_count[0]; // flip 6MHz -> 3MHz, mic clock is 3MHz
     always@(posedge CLK) if(mic_count_isend&&mic_clk) begin
         data0I1 <= data0I1 + mic_data;
@@ -55,15 +55,15 @@ endmodule
 module simple_AGC( input CLK, input i_vld, input signed [33:0] i_data,
                     output o_vld, output signed [17:0] o_data, output [5:0] o_range_over, input RST );
 
-    reg [12:0] g_counter = 0;
-    always@(posedge CLK) if(vld4) g_counter <= range_over ? 0 : g_counter+1;
+    reg [12:0] g_counter = 12'd0;
+    always@(posedge CLK) if(vld4) g_counter <= range_over ? 12'd0 : g_counter+12'd1;
 
     reg [3:0] shift = 4'h2;
 
     always@(posedge CLK) if(vld4) begin
-        shift <= RST ? 0 : 
-                 (range_over ? ( shift == 4'hf ? 4'hf : shift+1 ):
-                    ((g_counter == 12'hfff)? (shift==4'h0 ? 4'h0 :shift-1 ) : shift));
+        shift <= RST ? 4'h0 : 
+                 (range_over ? ( shift == 4'hf ? 4'hf : shift+4'h1 ):
+                    ((g_counter == 12'hfff) ? (shift==4'h0 ? 4'h0 :shift-4'h1 ) : shift));
     end
 
     localparam in_b = 34;
