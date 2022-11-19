@@ -59,8 +59,8 @@ def _unused_nco_tblint( fc_Hz, fs_Hz=12000, outsize=128, dbits=18 ):
             out[fi,di,:] = [cos0, sin0, cos1, sin1]
     return out
 
-def nco_int( fc_Hz, fs_Hz=12000, outsize=128, dbits=18, modulename='nco_rom' ):
-    dscale = 2**(dbits-2)
+def _unused_nco_int( fc_Hz, fs_Hz=12000, outsize=128, dbits=18, modulename='nco_rom' ):
+    dscale = (2**(dbits-2))
     nco_init_tbli = np.zeros( (len(fc_Hz), 4), dtype=np.int64)
     for fi in range(len(fc_Hz)):
         deltarad = 2.0*np.pi*fc_Hz[fi]/fs_Hz
@@ -77,6 +77,27 @@ def nco_int( fc_Hz, fs_Hz=12000, outsize=128, dbits=18, modulename='nco_rom' ):
         for di in range(1, outsize):
             cos0, sin0 = (cos0*cosd-sin0*sind)>>(dbits-2), (sin0*cosd+cos0*sind)>>(dbits-2)
             cos1, sin1 = (cos1*cosd-sin1*sind)>>(dbits-2), (sin1*cosd+cos1*sind)>>(dbits-2)
+            out[fi,di,:] = [cos0/dscale, sin0/dscale, cos1/dscale, sin1/dscale]
+    return out
+
+def nco_int( fc_Hz, fs_Hz=12000, outsize=128, dbits=18, modulename='nco_rom' ):
+    dscale = ((2**(dbits-1))-1)
+    nco_init_tbli = np.zeros( (len(fc_Hz), 4), dtype=np.int64)
+    for fi in range(len(fc_Hz)):
+        deltarad = 2.0*np.pi*fc_Hz[fi]/fs_Hz
+        nco_init_tbli[fi,:] = (np.cos(deltarad*2)*dscale, np.sin(deltarad*2)*dscale,
+                                np.cos(deltarad)*dscale,   np.sin(deltarad)*dscale)
+    converted_positive = np.where( nco_init_tbli<0, (2**dbits)+nco_init_tbli, nco_init_tbli ) 
+    genverilog.rom_write( f'./{modulename}.v', modulename, converted_positive.ravel(), mode='hex' )
+    out = np.zeros((len(fc_Hz), outsize, 4), dtype=np.float64 )
+    for fi in range(len(fc_Hz)):
+        cosd, sind = nco_init_tbli[fi,0], nco_init_tbli[fi,1]
+        cos0, sin0 = dscale, 0
+        cos1, sin1 = nco_init_tbli[fi,2], nco_init_tbli[fi,3]
+        out[fi, 0, :] = [cos0/dscale, sin0/dscale, cos1/dscale, sin1/dscale]
+        for di in range(1, outsize):
+            cos0, sin0 = (cos0*cosd-sin0*sind)>>(dbits-1), (sin0*cosd+cos0*sind)>>(dbits-1)
+            cos1, sin1 = (cos1*cosd-sin1*sind)>>(dbits-1), (sin1*cosd+cos1*sind)>>(dbits-1)
             out[fi,di,:] = [cos0/dscale, sin0/dscale, cos1/dscale, sin1/dscale]
     return out
 

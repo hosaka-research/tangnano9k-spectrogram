@@ -9,18 +9,18 @@ module nco_rom (clock,ce,oce,reset,addr,dataout);
 		end else begin
 			if (ce & oce) begin
 				case (addr)
-					9'h0000: dataout<=18'h0f673;
-					9'h0001: dataout<=18'h04543;
-					9'h0002: dataout<=18'h0fd9a;
-					9'h0003: dataout<=18'h022f5;
-					9'h0004: dataout<=18'h0f54a;
-					9'h0005: dataout<=18'h04944;
-					9'h0006: dataout<=18'h0fd4f;
-					9'h0007: dataout<=18'h02506;
-					9'h0008: dataout<=18'h0f3fd;
-					9'h0009: dataout<=18'h04d7d;
-					9'h000a: dataout<=18'h0fcfa;
-					9'h000b: dataout<=18'h02735;
+					9'h0000: dataout<=18'h1ece6;
+					9'h0001: dataout<=18'h08a86;
+					9'h0002: dataout<=18'h1fb33;
+					9'h0003: dataout<=18'h045ea;
+					9'h0004: dataout<=18'h1ea94;
+					9'h0005: dataout<=18'h09289;
+					9'h0006: dataout<=18'h1fa9d;
+					9'h0007: dataout<=18'h04a0b;
+					9'h0008: dataout<=18'h1e7f9;
+					9'h0009: dataout<=18'h09afb;
+					9'h000a: dataout<=18'h1f9f4;
+					9'h000b: dataout<=18'h04e6a;
 					9'h000c: dataout<=18'h00000;
 					9'h000d: dataout<=18'h00000;
 					9'h000e: dataout<=18'h00000;

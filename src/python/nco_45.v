@@ -5,10 +5,10 @@ module nco_45(
     input [8:0] v_pos,
     output signed [17:0] cos0, sin0, cos1, sin1
 );
-    assign cos0 = cos0r[35:18];
-    assign sin0 = sin0r[35:18];
-    assign cos1 = cos1r[35:18];
-    assign sin1 = sin1r[35:18];
+    assign cos0 = {cos0r[35],cos0r[33:17]};
+    assign sin0 = {sin0r[35],sin0r[33:17]};
+    assign cos1 = {cos1r[35],cos1r[33:17]};
+    assign sin1 = {sin1r[35],sin1r[33:17]};
     nco_rom rom( .clock(CK), .ce(ce), .oce(1'd1), .addr(addr), .dataout(dataout));
     reg signed [35:0] cos0r;
     reg signed [35:0] sin0r;
@@ -31,7 +31,7 @@ module nco_45(
         if ( counter == 0 ) begin
         end else if (counter == 1) begin
             cosd <= dataout; // rom[adr,0]
-            cos0r = 36'h400000000; // fiedpoint one
+            cos0r <= 36'h7ffffffff; // fixedpoint nearly one
         end else if (counter == 2) begin
             sind <= dataout; // rom[adr,1]
             sin0r <= 36'h000000000; // Zero
@@ -40,10 +40,10 @@ module nco_45(
         end else if (counter == 4) begin
             sin1r <= {dataout, 18'b0}; // rom[adr,3]
         end else begin
-            cos0r <= $signed($signed(cos0r[35:18])*$signed(18'h1fff0)); // -$signed($signed(sin0)*$signed(sind));
-            sin0r <= $signed($signed(sin0)*$signed(cosd))+$signed($signed(cos0)*$signed(sind));
-            cos1r <= $signed($signed(cos1)*$signed(cosd))-$signed($signed(sin1)*$signed(sind));
-            sin1r <= $signed($signed(sin1)*$signed(cosd))+$signed($signed(cos1)*$signed(sind));
+            cos0r <= ((cos0)*(cosd))-((sin0)*(sind));
+            sin0r <= ((sin0)*(cosd))+((cos0)*(sind));
+            cos1r <= ((cos1)*(cosd))-((sin1)*(sind));
+            sin1r <= ((sin1)*(cosd))+((cos1)*(sind));
         end
     end
 endmodule
@@ -59,16 +59,16 @@ module nco_45_tb_main();
     wire signed [17:0] sin0;
     wire signed [17:0] cos1;
     wire signed [17:0] sin1;
-    reg [35:0] test0 = 0;
-    reg [17:0] testd = 0;
-    wire [17:0] test = {test0[35],test0[33:16]};
+    reg signed [35:0] test0 = 0;
+    reg signed [17:0] testd = 0;
+    wire signed [17:0] test = {test0[35],test0[33:17]};
     wire start = (count<2);
     always@(posedge CK) begin
         if( start ) begin
-            test0 <= 36'h200000000;
-            testd <= 18'h0fff0;
+            test0 <= 36'h7_ffff_ffff;
+            testd <= 18'h1_ffff;
         end else begin
-            test0 <= $signed($signed(test)*$signed(testd));
+            test0 <= test*testd;
         end
     end
     nco_45 nco( .CK(CK), .START(start), .v_pos(9'd0),
