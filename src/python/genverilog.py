@@ -119,11 +119,11 @@ def _dprom( modulename, garray, adrbits=10, databits=18, binary=False ):
     return retval
 #
 
-def rom_write( fname, modulename, garray, adrbits=9, databits=18, mode='dec' ):
+def rom_write( fname, modulename, garray, abit=9, dbit=18, mode='dec' ):
     with open ( fname, 'w' ) as f:
-        f.write(rom( modulename, garray, adrbits, databits, mode )) 
+        f.write(rom( modulename, garray, abit, dbit, mode )) 
 
-def _dprom_write( fname, modulename, garray, adrbits=9, databits=18, mode='dec' ):
+def _unused_dprom_write( fname, modulename, garray, adrbits=9, databits=18, mode='dec' ):
     with open ( fname, 'w' ) as f:
         f.write(_dprom( modulename, garray, adrbits, databits, mode )) 
 

@@ -88,7 +88,7 @@ def nco_int( fc_Hz, fs_Hz=12000, outsize=128, dbits=18, modulename='nco_rom' ):
         nco_init_tbli[fi,:] = (np.cos(deltarad*2)*dscale, np.sin(deltarad*2)*dscale,
                                 np.cos(deltarad)*dscale,   np.sin(deltarad)*dscale)
     converted_positive = np.where( nco_init_tbli<0, (2**dbits)+nco_init_tbli, nco_init_tbli ) 
-    genverilog.rom_write( f'./{modulename}.v', modulename, converted_positive.ravel(), mode='hex' )
+    genverilog.rom_write( f'./{modulename}.v', modulename, converted_positive.ravel(), dbit=18, abit=11, mode='hex' )
     out = np.zeros((len(fc_Hz), outsize, 4), dtype=np.float64 )
     for fi in range(len(fc_Hz)):
         cosd, sind = nco_init_tbli[fi,0], nco_init_tbli[fi,1]
@@ -127,9 +127,9 @@ def MIDINO_Hz( midino ):
     return (A4_Hz*pow(2.0,((midino-MIDINO_A4)/12.0)))
 
 if __name__ == "__main__":
-    fc_test_Hz = (MIDINO_Hz(60),MIDINO_Hz(61),MIDINO_Hz(62))
-    print( fc_test_Hz )
+    #print( fc_test_Hz )
     #plot_nco( nco_float( fc_Hz ) )
-    plot_nco( nco_int( fc_test_Hz ) )
-    # fc_Hz =  np.flip(np.concatenate((np.array([10]),np.linspace(10,2390,479))))
-    # plot_nco( nco_int( fc_Hz ) )
+    #fc_test_Hz = (MIDINO_Hz(60),MIDINO_Hz(61),MIDINO_Hz(62))
+    #plot_nco( nco_int( fc_test_Hz ) )
+    fc_Hz =  np.flip(np.concatenate((np.array([10]),np.linspace(10,2390,479))))
+    plot_nco( nco_int( fc_Hz ) )

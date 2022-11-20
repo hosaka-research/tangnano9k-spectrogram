@@ -9,7 +9,9 @@ module nco_45(
     assign sin0 = {sin0r[35],sin0r[33:17]};
     assign cos1 = {cos1r[35],cos1r[33:17]};
     assign sin1 = {sin1r[35],sin1r[33:17]};
-    nco_rom rom( .clock(CK), .ce(ce), .oce(1'd1), .addr(addr), .dataout(dataout));
+    wire ce = ~counter[2];
+    wire [10:0] addr = {v_pos, counter[1:0]};
+    nco_rom rom( .clock(CK),  .ce(ce), .oce(1'd1), .reset(1'b0), .addr(addr), .dataout(dataout));
     reg signed [35:0] cos0r;
     reg signed [35:0] sin0r;
     reg signed [35:0] cos1r;
@@ -17,8 +19,6 @@ module nco_45(
     reg signed [17:0] cosd;
     reg signed [17:0] sind;
     reg [2:0] counter = 0;
-    wire [10:0] addr = {v_pos, counter[1:0]};
-    wire ce = ~counter[2];
     wire [17:0] dataout;
     always @ (posedge CK) begin
         if( START ) begin
