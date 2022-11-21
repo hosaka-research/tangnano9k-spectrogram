@@ -3,7 +3,7 @@ module nco_45(
     input CK,
     input START,
     input [8:0] v_pos,
-    output signed [17:0] cos0, sin0, cos1, sin1
+    output reg signed [17:0] cos0, sin0, cos1, sin1
 );
     reg [2:0] counter = 0;
     wire ce = ~counter[2];
@@ -11,13 +11,59 @@ module nco_45(
     wire [17:0] dataout;
     nco_rom rom( .clock(CK),  .ce(ce), .oce(1'd1), .reset(1'b0), .addr(addr), .dataout(dataout));
 
-    reg signed [35:0] cos0r;
-    reg signed [35:0] sin0r;
-    reg signed [35:0] cos1r;
-    reg signed [35:0] sin1r;
+    reg signed [17:0] cos0r = 0, sin0r = 0;
+    reg signed [17:0] cos1r = 0;
+    reg signed [17:0] sin1r = 0;
+    // wire signed [34:0] cos0w, sin0w, cos1w, sin1w;
     reg signed [17:0] cosd;
     reg signed [17:0] sind;
 
+    always @ (posedge CK) begin
+        if( START ) begin
+            counter <= 3'd0;
+        end else if (counter != 5) begin
+            counter <= counter+3'd1;
+        end
+    end
+    wire signed [34:0] cos0w = (cos0*cosd - sin0*sind);
+    wire signed [34:0] sin0w = (sin0*cosd + cos0*sind);
+    wire signed [34:0] cos1w = (cos1*cosd - sin1*sind);
+    wire signed [34:0] sin1w = (sin1*cosd + cos1*sind);
+    always@(posedge CK) begin
+        if ( counter == 0 ) begin
+        end else if (counter == 1) begin
+            cosd <= dataout; // rom[adr,0]
+            cos0 <= 18'h1ffff; // fixedpoint nearly one
+        end else if (counter == 2) begin
+            sind <= dataout; // rom[adr,1]
+            sin0 <= 18'h00000; // Zero
+        end else if (counter == 3) begin
+            cos1 <= dataout; // rom[adr,2]
+        end else if (counter == 4) begin
+            sin1 <= dataout; // rom[adr,3]
+        end else begin
+            cos0 <= cos0w>>>17;
+            sin0 <= sin0w>>>17;
+            cos1 <= cos1w>>>17;
+            sin1 <= sin1w>>>17;
+        end
+    end
+endmodule
+
+/*
+module nco_45_backup(
+    input CK,
+    input START,
+    input [8:0] v_pos,
+    output signed [17:0] cos0, sin0, cos1, sin1
+);
+    reg [2:0] counter = 0;
+    wire ce = ~counter[2];
+    wire [10:0] addr = {v_pos, counter[1:0]};
+    wire [17:0] dataout;
+    nco_rom rom( .clock(CK),  .ce(ce), .oce(1'd1), .reset(1'b0), .addr(addr), .dataout(dataout));
+    reg signed [35:0] cos0r, sin0r, cos1r, sin1r;
+    reg signed [17:0] cosd,  sind;
     always @ (posedge CK) begin
         if( START ) begin
             counter <= 3'd0;
@@ -44,11 +90,12 @@ module nco_45(
             sin1r <= sin1*cosd + cos1*sind;
         end
     end
-    assign cos0 = (cos0r>>>17); // {cos0r[35],cos0r[33:17]};
-    assign sin0 = (sin0r>>>17); // {sin0r[35],sin0r[33:17]};
-    assign cos1 = (cos1r>>>17); // {cos1r[35],cos1r[33:17]};
-    assign sin1 = (sin1r>>>17); // {sin1r[35],sin1r[33:17]};
+    assign cos0 = (cos0r>>>17);
+    assign sin0 = (sin0r>>>17);
+    assign cos1 = (cos1r>>>17);
+    assign sin1 = (sin1r>>>17);
 endmodule
+*/
 
 module nco_45_tb_main();
     reg CK = 0;
@@ -74,16 +121,18 @@ module nco_45_tb_main();
             test0 <= test*testd;
         end
     end
-    nco_45 nco( .CK(CK), .START(start), .v_pos(9'd0),
+
+    nco_45_new nco( .CK(CK), .START(start), .v_pos(9'd0),
          .cos0(cos0), .sin0(sin0), .cos1(cos1), .sin1(sin1) );
     always@(posedge CK) begin
+        // $monitor ( (16'hff)*(16'hff) );
         count <= count+1;
         if ( 128*4 < count ) $finish;
     end
     initial begin
         $dumpfile( "nco_45.vcd" );
         $dumpvars( -1, CK, start, test, test0, testd, cos0, sin0, cos1, sin1, count,
-            nco.dataout, nco.counter, nco.cos0r, nco.sin0r, nco.cos1r, nco.sin1r, nco.cosd, nco.sind );
+            nco.dataout, nco.counter, nco.cos0, nco.sin0, nco.cos1, nco.sin1, nco.cosd, nco.sind );
     end
 endmodule
 

@@ -5,11 +5,12 @@ import genverilog
 
 A4_Hz=440.0
 MIDINO_A4=69
+fs_Hz = 6000
 
 def MIDINO_Hz( midino ):
     return (A4_Hz*pow(2.0,((midino-MIDINO_A4)/12.0)))
 
-def _unused_nco_float( fc_Hz, fs_Hz=12000, outsize=128 ):
+def _unused_nco_float( fc_Hz, fs_Hz=fs_Hz, outsize=128 ):
     out = np.zeros((len(fc_Hz), outsize, 4), dtype=np.float64 )
     for fi in range(len(fc_Hz)):
         deltarad = 2.0*np.pi*fc_Hz[fi]/fs_Hz
@@ -23,7 +24,7 @@ def _unused_nco_float( fc_Hz, fs_Hz=12000, outsize=128 ):
             out[fi,di,:] = [cos0, sin0, cos1, sin1]
     return out
 
-def _unused_nco_tblf( fc_Hz, fs_Hz=12000, outsize=128 ):
+def _unused_nco_tblf( fc_Hz, fs_Hz=fs_Hz, outsize=128 ):
     nco_init_tblf = np.zeros( (len(fc_Hz), 4), dtype=np.float64)
     for fi in range(len(fc_Hz)):
         deltarad = 2.0*np.pi*fc_Hz[fi]/fs_Hz
@@ -40,7 +41,7 @@ def _unused_nco_tblf( fc_Hz, fs_Hz=12000, outsize=128 ):
             out[fi,di,:] = [cos0, sin0, cos1, sin1]
     return out
 
-def _unused_nco_tblint( fc_Hz, fs_Hz=12000, outsize=128, dbits=18 ):
+def _unused_nco_tblint( fc_Hz, fs_Hz=fs_Hz, outsize=128, dbits=18 ):
     nco_init_tblf = np.zeros( (len(fc_Hz), 4), dtype=np.float64)
     for fi in range(len(fc_Hz)):
         deltarad = 2.0*np.pi*fc_Hz[fi]/fs_Hz
@@ -59,7 +60,7 @@ def _unused_nco_tblint( fc_Hz, fs_Hz=12000, outsize=128, dbits=18 ):
             out[fi,di,:] = [cos0, sin0, cos1, sin1]
     return out
 
-def _unused_nco_int( fc_Hz, fs_Hz=12000, outsize=128, dbits=18, modulename='nco_rom' ):
+def _unused_nco_int( fc_Hz, fs_Hz=fs_Hz, outsize=128, dbits=18, modulename='nco_rom' ):
     dscale = (2**(dbits-1))
     nco_init_tbli = np.zeros( (len(fc_Hz), 4), dtype=np.int64)
     for fi in range(len(fc_Hz)):
@@ -80,7 +81,7 @@ def _unused_nco_int( fc_Hz, fs_Hz=12000, outsize=128, dbits=18, modulename='nco_
             out[fi,di,:] = [cos0/dscale, sin0/dscale, cos1/dscale, sin1/dscale]
     return out
 
-def nco_int( fc_Hz, fs_Hz=12000, outsize=128, dbits=18, modulename='nco_rom' ):
+def nco_int( fc_Hz, fs_Hz=fs_Hz, outsize=128, dbits=18, modulename='nco_rom' ):
     dscale = (2**(dbits-1)-1)
     nco_init_tbli = np.zeros( (len(fc_Hz), 4), dtype=np.int64)
     for fi in range(len(fc_Hz)):
@@ -102,7 +103,7 @@ def nco_int( fc_Hz, fs_Hz=12000, outsize=128, dbits=18, modulename='nco_rom' ):
     return out
 
 
-def plot_nco( data, fs_Hz=12000, filename='./nco_float.png' ):
+def plot_nco( data, fs_Hz=fs_Hz, filename='./nco_float.png' ):
     plotsize = min( 13, data.shape[0] )
     fig, axs = plt.subplots( plotsize, 1, sharex='all', figsize=(16,9) )
     time_s0 = 2.0*np.arange(data.shape[1])/fs_Hz
@@ -129,7 +130,9 @@ def MIDINO_Hz( midino ):
 if __name__ == "__main__":
     #print( fc_test_Hz )
     #plot_nco( nco_float( fc_Hz ) )
-    #fc_test_Hz = (MIDINO_Hz(60),MIDINO_Hz(61),MIDINO_Hz(62))
+
     #plot_nco( nco_int( fc_test_Hz ) )
+    #fc_Hz = (MIDINO_Hz(60),MIDINO_Hz(61),MIDINO_Hz(62))
     fc_Hz =  np.flip(np.concatenate((np.array([10]),np.linspace(10,2390,479))))
-    plot_nco( nco_int( fc_Hz ) )
+    #fc_Hz = (600, 1200, 1800, 2400)
+    plot_nco( nco_int( fc_Hz, outsize=20 ) )
