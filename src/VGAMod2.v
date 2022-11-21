@@ -85,6 +85,7 @@ always@(posedge CLK) if(ADATARDY) adata0wadr <= adata0wadr+1'h1;
 ////////////////////////////////
 // calc theta for every clock
 ////////////////////////////////
+/*
 wire [35:0] dtheta;
 fctheta_rom deltatheta( .clock(CLK),.ce(1'b1),.oce(1'b1), .reset(1'b0),
                         .addr(v_pos), .dataout(dtheta));
@@ -93,7 +94,7 @@ reg [35:0] theta1 = 0; // EVEN NUMBER ALWAYS
 //always@(posedge CLK) theta <= (h_isend) ? 0 : theta + dtheta;
 always@(posedge CLK) theta0 <= theta1 + dtheta;
 always@(posedge CLK) theta1 <= theta1 + dtheta*2;
-
+*/
 ////////////////////////////////
 // cos(theta) & sin(theta) to be detected
 ////////////////////////////////

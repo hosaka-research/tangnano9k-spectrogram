@@ -226,6 +226,7 @@ wire [6:0] addr = {ychr, xchr};
     end
 endmodule
 
+/*
 module char_pixgen
 (
     input CK,
@@ -331,6 +332,7 @@ always @(posedge CK) begin
     end
 end
 endmodule
+*/
 
 module char_pixgen2
 (
