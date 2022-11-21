@@ -60,7 +60,7 @@ def _unused_nco_tblint( fc_Hz, fs_Hz=12000, outsize=128, dbits=18 ):
     return out
 
 def _unused_nco_int( fc_Hz, fs_Hz=12000, outsize=128, dbits=18, modulename='nco_rom' ):
-    dscale = (2**(dbits-2))
+    dscale = (2**(dbits-1))
     nco_init_tbli = np.zeros( (len(fc_Hz), 4), dtype=np.int64)
     for fi in range(len(fc_Hz)):
         deltarad = 2.0*np.pi*fc_Hz[fi]/fs_Hz
@@ -81,12 +81,12 @@ def _unused_nco_int( fc_Hz, fs_Hz=12000, outsize=128, dbits=18, modulename='nco_
     return out
 
 def nco_int( fc_Hz, fs_Hz=12000, outsize=128, dbits=18, modulename='nco_rom' ):
-    dscale = ((2**(dbits-1))-1)
+    dscale = (2**(dbits-1)-1)
     nco_init_tbli = np.zeros( (len(fc_Hz), 4), dtype=np.int64)
     for fi in range(len(fc_Hz)):
         deltarad = 2.0*np.pi*fc_Hz[fi]/fs_Hz
         nco_init_tbli[fi,:] = (np.cos(deltarad*2)*dscale, np.sin(deltarad*2)*dscale,
-                                np.cos(deltarad)*dscale,   np.sin(deltarad)*dscale)
+                                np.cos(deltarad*1)*dscale,   np.sin(deltarad*1)*dscale)
     converted_positive = np.where( nco_init_tbli<0, (2**dbits)+nco_init_tbli, nco_init_tbli ) 
     genverilog.rom_write( f'./{modulename}.v', modulename, converted_positive.ravel(), dbit=18, abit=11, mode='hex' )
     out = np.zeros((len(fc_Hz), outsize, 4), dtype=np.float64 )

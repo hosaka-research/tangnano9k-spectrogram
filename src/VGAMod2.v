@@ -98,17 +98,13 @@ always@(posedge CLK) theta1 <= theta1 + dtheta*2;
 // cos(theta) & sin(theta) to be detected
 ////////////////////////////////
 wire signed [17:0] cos0, sin0, cos1, sin1;
-cordic cscordic0( .CLK(CLK), .theta(theta0[35:16]), .cosout(cos0), .sinout(sin0));
-cordic cscordic1( .CLK(CLK), .theta(theta1[35:16]), .cosout(cos1), .sinout(sin1)); 
+//cordic cscordic0( .CLK(CLK), .theta(theta0[35:16]), .cosout(cos0), .sinout(sin0));
+//cordic cscordic1( .CLK(CLK), .theta(theta1[35:16]), .cosout(cos1), .sinout(sin1)); 
 
 ////////////////////////////////
 // sin() and cos() from rotation based NCO 'nco_45' 
 ////////////////////////////////
-wire signed [17:0] cosn0;
-wire signed [17:0] sinn0;
-wire signed [17:0] cosn1;
-wire signed [17:0] sinn1;
-nco_45 nco(.CK(CLK), .START(h_count==0), .v_pos(v_pos), .cos0(cosn0), .sin0(sinn0), .cos1(cosn1), .sin1(sinn1)); 
+nco_45 nco(.CK(CLK), .START(h_count==0), .v_pos(v_pos[8:0]), .cos0(cos0), .sin0(sin0), .cos1(cos1), .sin1(sin1)); 
 
 /////////////////////////////////
 // audio buffer read
@@ -130,16 +126,16 @@ localparam B_dbit = 54; // 36+3+B_abit;
 reg signed [B_dbit-1:0] real_I0=0;
 reg signed [B_dbit-1:0] real_I1=0, real_I2=0;
 
-always@(posedge CLK) real_I0 <= ((($signed(cosn0)*$signed(adata0_crnt0))
-                                 +($signed(cosn1)*$signed(adata0_crnt1))) );
+always@(posedge CLK) real_I0 <= ((($signed(cos0)*$signed(adata0_crnt0))
+                                 +($signed(cos1)*$signed(adata0_crnt1))) );
 always@(posedge CLK) real_I1 <= $signed($signed(real_I1)+$signed(real_I0));
 // always@(posedge CLK) real_I2 <= $signed($signed(real_I2)+$signed(real_I1));
 
 reg signed [B_dbit-1:0] imag_I0=0;
 reg signed [B_dbit-1:0] imag_I1=0, imag_I2=0;
 
-always@(posedge CLK) imag_I0 <= ((($signed(sinn0)*$signed(adata0_crnt0))
-                                 +($signed(sinn1)*$signed(adata0_crnt1))) );
+always@(posedge CLK) imag_I0 <= ((($signed(sin0)*$signed(adata0_crnt0))
+                                 +($signed(sin1)*$signed(adata0_crnt1))) );
 always@(posedge CLK) imag_I1 <= $signed($signed(imag_I1)+$signed(imag_I0));
 // always@(posedge CLK) imag_I2 <= $signed($signed(imag_I2)+$signed(imag_I1));
 

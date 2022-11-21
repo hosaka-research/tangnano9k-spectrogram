@@ -5,47 +5,49 @@ module nco_45(
     input [8:0] v_pos,
     output signed [17:0] cos0, sin0, cos1, sin1
 );
-    assign cos0 = {cos0r[35],cos0r[33:17]};
-    assign sin0 = {sin0r[35],sin0r[33:17]};
-    assign cos1 = {cos1r[35],cos1r[33:17]};
-    assign sin1 = {sin1r[35],sin1r[33:17]};
+    reg [2:0] counter = 0;
     wire ce = ~counter[2];
     wire [10:0] addr = {v_pos, counter[1:0]};
+    wire [17:0] dataout;
     nco_rom rom( .clock(CK),  .ce(ce), .oce(1'd1), .reset(1'b0), .addr(addr), .dataout(dataout));
+
     reg signed [35:0] cos0r;
     reg signed [35:0] sin0r;
     reg signed [35:0] cos1r;
     reg signed [35:0] sin1r;
     reg signed [17:0] cosd;
     reg signed [17:0] sind;
-    reg [2:0] counter = 0;
-    wire [17:0] dataout;
+
     always @ (posedge CK) begin
         if( START ) begin
             counter <= 3'd0;
         end else if (counter != 5) begin
-            counter <= counter+1;
+            counter <= counter+3'd1;
         end
     end
     always@(posedge CK) begin
         if ( counter == 0 ) begin
         end else if (counter == 1) begin
             cosd <= dataout; // rom[adr,0]
-            cos0r <= 36'h7ffffffff; // fixedpoint nearly one
+            cos0r <= 36'h3ffffffff; // fixedpoint nearly one
         end else if (counter == 2) begin
             sind <= dataout; // rom[adr,1]
             sin0r <= 36'h000000000; // Zero
         end else if (counter == 3) begin
-            cos1r <= {dataout, 18'b0}; // rom[adr,2]
+            cos1r <= {dataout[17],dataout,17'b0}; // rom[adr,2]
         end else if (counter == 4) begin
-            sin1r <= {dataout, 18'b0}; // rom[adr,3]
+            sin1r <= {dataout[17],dataout,17'b0}; // rom[adr,3]
         end else begin
-            cos0r <= ((cos0)*(cosd))-((sin0)*(sind));
-            sin0r <= ((sin0)*(cosd))+((cos0)*(sind));
-            cos1r <= ((cos1)*(cosd))-((sin1)*(sind));
-            sin1r <= ((sin1)*(cosd))+((cos1)*(sind));
+            cos0r <= cos0*cosd - sin0*sind;
+            sin0r <= sin0*cosd + cos0*sind;
+            cos1r <= cos1*cosd - sin1*sind;
+            sin1r <= sin1*cosd + cos1*sind;
         end
     end
+    assign cos0 = (cos0r>>>17); // {cos0r[35],cos0r[33:17]};
+    assign sin0 = (sin0r>>>17); // {sin0r[35],sin0r[33:17]};
+    assign cos1 = (cos1r>>>17); // {cos1r[35],cos1r[33:17]};
+    assign sin1 = (sin1r>>>17); // {sin1r[35],sin1r[33:17]};
 endmodule
 
 module nco_45_tb_main();
@@ -56,13 +58,14 @@ module nco_45_tb_main();
     reg [19:0] theta = 0;
     reg [31:0] count = 0;
     wire signed [17:0] cos0;
+
     wire signed [17:0] sin0;
     wire signed [17:0] cos1;
     wire signed [17:0] sin1;
     reg signed [35:0] test0 = 0;
     reg signed [17:0] testd = 0;
     wire signed [17:0] test = {test0[35],test0[33:17]};
-    wire start = (count<2);
+    wire start = (count<2); 
     always@(posedge CK) begin
         if( start ) begin
             test0 <= 36'h7_ffff_ffff;
