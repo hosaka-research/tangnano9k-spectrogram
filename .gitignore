@@ -10,11 +10,13 @@ src/_pythontest
 stereomic/*.lib
 *.kicad_pcb
 *.pro
+*.png
 *.sch
 *.sch-bak
 *.cpp
 *.c
 *.h
+*.user
 stereomic/fp-info-cache
 stereomic/sym-lib-table
 impl/pnr

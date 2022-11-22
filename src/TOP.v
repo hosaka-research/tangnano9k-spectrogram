@@ -1,7 +1,7 @@
 
 module TOP
 (
-	input			Reset_Button,
+	// input			Reset_Button,
     // input           User_Button,
     input           XTAL_IN,
 
@@ -46,7 +46,7 @@ module TOP
 	VGAMod2	D1
 	(
 		.CLK		(	CLK     ),
-		.nRST		(	Reset_Button ),
+		.nRST		(	1'd0 ),
 
 		.PixelClk ( LCD_CLK ),
 		.LCD_DE	 ( LCD_DENBL ),

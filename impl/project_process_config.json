@@ -38,14 +38,14 @@
  "Number_of_Critical_Paths" : "",
  "Number_of_Start/End_Points" : "",
  "OUTPUT_BASE_NAME" : "Nano9k_lcdmic",
- "POWER_ON_RESET" : false,
+ "POWER_ON_RESET_MONITOR" : true,
  "PRINT_BSRAM_VALUE" : true,
  "PROGRAM_DONE_BYPASS" : false,
  "Pipelining" : true,
  "PlaceInRegToIob" : true,
  "PlaceIoRegToIob" : true,
  "PlaceOutRegToIob" : true,
- "Place_Option" : "0",
+ "Place_Option" : "1",
  "Process_Configuration_Verion" : "1.0",
  "Promote_Physical_Constraint_Warning_to_Error" : false,
  "Push_Tristates" : true,
@@ -57,7 +57,7 @@
  "Resource_Sharing" : true,
  "Retiming" : false,
  "Route_Maxfan" : 23,
- "Route_Option" : "0",
+ "Route_Option" : "1",
  "Run_Timing_Driven" : true,
  "SECURE_MODE" : false,
  "SECURITY_BIT" : true,
@@ -77,5 +77,6 @@
  "WAKE_UP" : "0",
  "Write_Vendor_Constraint_File" : true,
  "dsp_balance" : false,
- "show_all_warnings" : false
+ "show_all_warnings" : false,
+ "turn_off_bg" : false
 }

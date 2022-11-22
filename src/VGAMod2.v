@@ -30,7 +30,7 @@ assign PixelClk = PCLK;
 /////////////////////////////
 // H counter
 /////////////////////////////
-localparam h_blank  =  46;
+localparam h_blank  =  11'd46;
 localparam h_pulse  =   1; 
 localparam h_disp   = h_blank + 800;
 localparam h_noinp  = h_disp + 128;
@@ -41,13 +41,13 @@ wire h_isend = (c_isend&&(h_count==h_stop-1));
 wire h_isdispend =  (c_isend&&(h_count==h_disp-1));
 wire h_isnoinp   =   ((h_disp <= h_count)&&(h_count < h_noinp));
 wire h_isnoinpend =  (c_isend&&(h_count==h_noinp-1));
-always@(posedge CLK) if(c_isend) h_count <= h_count==h_stop-1 ? 0 : h_count+1;
-wire [9:0] h_pos=h_count-h_blank;
+always@(posedge CLK) if(c_isend) h_count <= h_count==h_stop-1'h1 ? 1'h0 : h_count+1'h1;
+wire [9:0] h_pos=(h_count-h_blank);
 reg h_sync = 1;
-always@(posedge CLK) if(c_isend) h_sync <= (((h_pulse-1)<=h_count)&&(h_count<=(h_disp-1)));
+always@(posedge CLK) if(c_isend) h_sync <= (((h_pulse-1'h1)<=h_count)&&(h_count<=(h_disp-1'h1)));
 assign LCD_HSYNC = h_sync;
-wire h_enable = ((h_blank-1<=h_count)&&(h_count <= h_disp-1));
-wire h_validdata = ((h_count<=(h_disp-1)));
+wire h_enable = ((h_blank-1<=h_count)&&(h_count <= h_disp-1'h1));
+wire h_validdata = ((h_count<=(h_disp-1'h1)));
 
 /////////////////////////////
 // V counter
@@ -59,7 +59,7 @@ localparam v_stop  = v_disp + 45;
 
 reg[ 9:0] v_count   = 0; // Count vertical clock to generate frame clock
 wire v_isend = (h_isend&&(v_count==v_stop-1));
-always@(posedge CLK) if(h_isend) v_count <= v_isend ? 0 : v_count+1;
+always@(posedge CLK) if(h_isend) v_count <= v_isend ? 1'h0 : v_count+1'h1;
 reg v_sync = 0;
 always@(posedge CLK) if(h_isend) v_sync <= ((v_pulse<=v_count)&&(v_count<=v_stop));
 
@@ -80,11 +80,12 @@ reg signed [17:0] adata0buf1[0:adata0buf_size-1];
 reg [adata0buf_bit:0] adata0wadr = 0;
 always@(posedge CLK) if(ADATARDY && adata0wadr[0]==0) adata0buf0[adata0wadr[adata0buf_bit:1]] <= $signed(ADATA0);
 always@(posedge CLK) if(ADATARDY && adata0wadr[0]==1) adata0buf1[adata0wadr[adata0buf_bit:1]] <= $signed(ADATA0);
-always@(posedge CLK) if(ADATARDY) adata0wadr <= adata0wadr+1;
+always@(posedge CLK) if(ADATARDY) adata0wadr <= adata0wadr+1'h1;
 
 ////////////////////////////////
 // calc theta for every clock
 ////////////////////////////////
+/*
 wire [35:0] dtheta;
 fctheta_rom deltatheta( .clock(CLK),.ce(1'b1),.oce(1'b1), .reset(1'b0),
                         .addr(v_pos), .dataout(dtheta));
@@ -93,13 +94,18 @@ reg [35:0] theta1 = 0; // EVEN NUMBER ALWAYS
 //always@(posedge CLK) theta <= (h_isend) ? 0 : theta + dtheta;
 always@(posedge CLK) theta0 <= theta1 + dtheta;
 always@(posedge CLK) theta1 <= theta1 + dtheta*2;
-
+*/
 ////////////////////////////////
 // cos(theta) & sin(theta) to be detected
 ////////////////////////////////
 wire signed [17:0] cos0, sin0, cos1, sin1;
-cordic cscordic0( .CLK(CLK), .theta(theta0[35:16]), .cosout(cos0), .sinout(sin0));
-cordic cscordic1( .CLK(CLK), .theta(theta1[35:16]), .cosout(cos1), .sinout(sin1)); 
+//cordic cscordic0( .CLK(CLK), .theta(theta0[35:16]), .cosout(cos0), .sinout(sin0));
+//cordic cscordic1( .CLK(CLK), .theta(theta1[35:16]), .cosout(cos1), .sinout(sin1)); 
+
+////////////////////////////////
+// sin() and cos() from rotation based NCO 'nco_45' 
+////////////////////////////////
+nco_45 nco(.CK(CLK), .START(h_count==0), .v_pos(v_pos[8:0]), .cos0(cos0), .sin0(sin0), .cos1(cos1), .sin1(sin1)); 
 
 /////////////////////////////////
 // audio buffer read
@@ -107,7 +113,7 @@ cordic cscordic1( .CLK(CLK), .theta(theta1[35:16]), .cosout(cos1), .sinout(sin1)
 reg [adata0buf_bit-1:0] adata_adr_crnt = 0;
 //always@(posedge CLK) adata_adr_crnt <= h_isnoinpend ? adata0wadr+2+1350 : adata_adr_crnt+1;
 //always@(posedge CLK) adata_adr_crnt <= h_isnoinpend ? adata0wadr+2+650 : adata_adr_crnt+1;
-always@(posedge CLK) adata_adr_crnt <= h_isnoinpend ? adata0wadr[adata0buf_bit:1]+2+400: adata_adr_crnt+1;
+always@(posedge CLK) adata_adr_crnt <= h_isnoinpend ? adata0wadr[adata0buf_bit:1]+2'd2+9'd400: adata_adr_crnt+1'd1;
 reg signed [17:0] adata0_crnt0, adata0_crnt1;
 always@(posedge CLK) adata0_crnt0 <= 0 ? 0: adata0buf0[adata_adr_crnt]; // check
 always@(posedge CLK) adata0_crnt1 <= 0 ? 0: adata0buf1[adata_adr_crnt]; // check
@@ -273,13 +279,19 @@ always@(posedge CLK) if(c_isend) begin
     end
 end
 
+reg gridenout = 0;
+reg gridpixout = 0;
+grid_pixgen gp( .CK(CLK), .EN(c_S), .v_pos(v_pos), .h_pos(h_pos), .enout(gridenout), .pixout(gridpixout) );
+
 reg [15:0] LCD_RGB565_r = 0;
 assign LCD_RGB565=LCD_RGB565_r;
 
 //always@(posedge CLK) if(c_S[3]) LCD_RGB565_r <= (v_count[7:0] != adata0_crnt0[17:10]) ? 16'h0000 : 16'hffff;
 //always@(posedge CLK) if(c_S[3]) LCD_RGB565_r <= (v_count[7:0] != adata0_crnt0[17:10]) ? {5'b0, blog[5:0], 5'b0}: 16'hffff;
 //always@(posedge CLK) if(c_S[3])LCD_RGB565_r <= (v_count[7:0] != adata0_crnt0[17:10]) ? {blog[5:1], blog[5:0], blog[5:1]}: 16'hffff;
-always@(posedge CLK) if(c_S[3]) LCD_RGB565_r <= {blog[5:1], blog[5:0], blog[5:1]};
+//always@(posedge CLK) if(c_S[3]) LCD_RGB565_r <= {blog[5:1], blog[5:0], blog[5:1]}; 
+// always@(posedge CLK) if(c_S[3]) LCD_RGB565_r <= gridpixout ? 16'hffff : gridenout ? {blog[5:1], blog[5:0], blog[5:1]} : 16'b0; 
+always@(posedge CLK) if(c_S[3]) LCD_RGB565_r <= gridpixout ? 16'h7bef : {blog[5:1], blog[5:0], blog[5:1]}; 
 endmodule
 
 
