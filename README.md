@@ -15,5 +15,4 @@ Python code is used to generate Verilog numerical table.
 * src/TOP.v top layer and PLL(27MHz->90MHz).
 * src/cic_digital_mic_90M_3M_6k.v microphone clock generation(90MHz->3MHz), cic downsampling filter(3MHz->6kHz) and DC-cut filter.
 * src/VGAMod2.v DFT is synchronized to display controller(Pixel clock=22.5Mhz)
-* src/python/cordic.v cos/sin generator
-* src/python/theta_rom.v numerical table of phase change on every sample.
+
